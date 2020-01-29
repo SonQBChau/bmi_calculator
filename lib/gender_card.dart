@@ -16,41 +16,51 @@ class GenderCard extends StatefulWidget {
   @override
   _GenderCardState createState() => _GenderCardState();
 }
-class _GenderCardState extends State<GenderCard> {
+class _GenderCardState extends State<GenderCard>
+    with SingleTickerProviderStateMixin {
+  AnimationController _arrowAnimationController;
   Gender selectedGender;
 
   @override
   void initState() {
-    selectedGender = widget.initialGender ?? Gender.other; //<--- initialize selected gender
+    selectedGender = widget.initialGender ?? Gender.other;
+    _arrowAnimationController = new AnimationController(
+      vsync: this,
+      lowerBound: -_defaultGenderAngle,
+      upperBound: _defaultGenderAngle,
+      value: _genderAngles[selectedGender],
+    );
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _arrowAnimationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: SizedBox(
-        width: double.infinity,
-        child: Padding(
-          padding: EdgeInsets.only(top: screenAwareSize(8.0, context)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              CardTitle("GENDER"),
-               Padding(
-                padding: EdgeInsets.only(top: screenAwareSize(16.0, context)),
-                child: _drawMainStack(),
-              ),
-            ],
-          ),
+      child: Padding(
+        padding: EdgeInsets.only(top: screenAwareSize(8.0, context)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            CardTitle("GENDER"),
+            Padding(
+              padding: EdgeInsets.only(top: screenAwareSize(16.0, context)),
+              child: _drawMainStack(),
+            ),
+          ],
         ),
       ),
     );
   }
 
-
-    Widget _drawMainStack() {
+  Widget _drawMainStack() {
     return Container(
-      width: double.infinity, //<--- Expand stack width
+      width: double.infinity,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
@@ -58,30 +68,37 @@ class _GenderCardState extends State<GenderCard> {
           GenderIconTranslated(gender: Gender.female),
           GenderIconTranslated(gender: Gender.other),
           GenderIconTranslated(gender: Gender.male),
-          _drawGestureDetector(), //<--- Add gesutre detector
+          _drawGestureDetector(),
         ],
       ),
     );
   }
 
-    Widget _drawCircleIndicator() {
+  Widget _drawCircleIndicator() {
     return Stack(
       alignment: Alignment.center,
       children: <Widget>[
         GenderCircle(),
-        GenderArrow(angle: _genderAngles[selectedGender]),//<--- make arrow display current gender
+        GenderArrow(listenable: _arrowAnimationController),
       ],
     );
   }
 
-   _drawGestureDetector() {
+  _drawGestureDetector() {
     return Positioned.fill(
       child: TapHandler(
-        onGenderTapped: (gender) => setState(() => selectedGender = gender),
+        onGenderTapped: _setSelectedGender,
       ),
     );
   }
 
+  void _setSelectedGender(Gender gender) {
+    setState(() => selectedGender = gender);
+    _arrowAnimationController.animateTo(
+      _genderAngles[gender],
+      duration: Duration(milliseconds: 150),
+    );
+  }
 }
 
 class GenderCircle extends StatelessWidget {
@@ -187,10 +204,13 @@ class GenderIconTranslated extends StatelessWidget {
     return centeredIconWithALine;
   }
 }
-class GenderArrow extends StatelessWidget {
-  final double angle;
 
-  const GenderArrow({Key key, this.angle}) : super(key: key);
+
+class GenderArrow extends AnimatedWidget { //<--- Use AnimatedWidget
+  const GenderArrow({Key key, Listenable listenable}) : super(key: key, listenable: listenable);
+
+
+
 
   double _arrowLength(BuildContext context) => screenAwareSize(32.0, context);
 
@@ -198,8 +218,9 @@ class GenderArrow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Animation animation = listenable;
     return Transform.rotate(
-      angle: angle,
+       angle: animation.value,
       child: Transform.translate(
         offset: Offset(0.0, _translationOffset(context)),
         child: Transform.rotate(
