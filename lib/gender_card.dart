@@ -17,6 +17,14 @@ class GenderCard extends StatefulWidget {
   _GenderCardState createState() => _GenderCardState();
 }
 class _GenderCardState extends State<GenderCard> {
+  Gender selectedGender;
+
+  @override
+  void initState() {
+    selectedGender = widget.initialGender ?? Gender.other; //<--- initialize selected gender
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -40,16 +48,19 @@ class _GenderCardState extends State<GenderCard> {
   }
 
 
-  Widget _drawMainStack() {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: <Widget>[
-        _drawCircleIndicator(),
-        GenderIconTranslated(gender: Gender.female),
-        GenderIconTranslated(gender: Gender.other),
-        GenderIconTranslated(gender: Gender.male),
-
-      ],
+    Widget _drawMainStack() {
+    return Container(
+      width: double.infinity, //<--- Expand stack width
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: <Widget>[
+          _drawCircleIndicator(),
+          GenderIconTranslated(gender: Gender.female),
+          GenderIconTranslated(gender: Gender.other),
+          GenderIconTranslated(gender: Gender.male),
+          _drawGestureDetector(), //<--- Add gesutre detector
+        ],
+      ),
     );
   }
 
@@ -58,8 +69,16 @@ class _GenderCardState extends State<GenderCard> {
       alignment: Alignment.center,
       children: <Widget>[
         GenderCircle(),
-        GenderArrow(angle: _genderAngles[Gender.female]),
+        GenderArrow(angle: _genderAngles[selectedGender]),//<--- make arrow display current gender
       ],
+    );
+  }
+
+   _drawGestureDetector() {
+    return Positioned.fill(
+      child: TapHandler(
+        onGenderTapped: (gender) => setState(() => selectedGender = gender),
+      ),
     );
   }
 
@@ -192,6 +211,25 @@ class GenderArrow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+
+class TapHandler extends StatelessWidget {
+  final Function(Gender) onGenderTapped;
+
+  const TapHandler({Key key, this.onGenderTapped}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        Expanded(child: GestureDetector(onTap: () => onGenderTapped(Gender.female))),
+        Expanded(child: GestureDetector(onTap: () => onGenderTapped(Gender.other))),
+        Expanded(child: GestureDetector(onTap: () => onGenderTapped(Gender.male))),
+      ],
     );
   }
 }
