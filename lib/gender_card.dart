@@ -48,6 +48,7 @@ class _GenderCardState extends State<GenderCard> {
         GenderIconTranslated(gender: Gender.female),
         GenderIconTranslated(gender: Gender.other),
         GenderIconTranslated(gender: Gender.male),
+
       ],
     );
   }
@@ -57,6 +58,7 @@ class _GenderCardState extends State<GenderCard> {
       alignment: Alignment.center,
       children: <Widget>[
         GenderCircle(),
+        GenderArrow(angle: _genderAngles[Gender.female]),
       ],
     );
   }
@@ -164,5 +166,32 @@ class GenderIconTranslated extends StatelessWidget {
     );
 
     return centeredIconWithALine;
+  }
+}
+class GenderArrow extends StatelessWidget {
+  final double angle;
+
+  const GenderArrow({Key key, this.angle}) : super(key: key);
+
+  double _arrowLength(BuildContext context) => screenAwareSize(32.0, context);
+
+  double _translationOffset(BuildContext context) => _arrowLength(context) * -0.4;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: angle,
+      child: Transform.translate(
+        offset: Offset(0.0, _translationOffset(context)),
+        child: Transform.rotate(
+          angle: -_defaultGenderAngle,
+          child: SvgPicture.asset(
+            "images/gender_arrow.svg",
+            height: _arrowLength(context),
+            width: _arrowLength(context),
+          ),
+        ),
+      ),
+    );
   }
 }
