@@ -1,3 +1,4 @@
+import 'package:bmi_calculator/weight_card.dart';
 import 'package:flutter/material.dart';
 import 'widget_utils.dart' show screenAwareSize;
 import 'package:bmi_calculator/gender_card.dart';
@@ -55,7 +56,7 @@ class InputPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Expanded(child: GenderCard()),
-                Expanded(child: _tempCard("Weight")),
+                Expanded(child: WeightCard()),
               ],
             ),
           ),
