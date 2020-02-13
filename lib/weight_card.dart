@@ -1,4 +1,5 @@
 import 'package:bmi_calculator/card_title.dart';
+import 'package:bmi_calculator/weight_slider.dart';
 // import 'package:bmi_calculator/weight_slider.dart';
 import 'package:bmi_calculator/widget_utils.dart' show screenAwareSize;
 import 'package:flutter/material.dart';
@@ -47,17 +48,17 @@ class _WeightCardState extends State<WeightCard> {
 
   Widget _drawSlider() {
     return WeightBackground(
-      // child: LayoutBuilder(
-      //   builder: (context, constraints) {
-      //     return WeightSlider(
-      //       minValue: 30,
-      //       maxValue: 110,
-      //       value: weight,
-      //       onChanged: (val) => setState(() => weight = val),
-      //       width: constraints.maxWidth,
-      //     );
-      //   },
-      // ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return WeightSlider(
+            minValue: 30,
+            maxValue: 110,
+            // value: weight,
+            // onChanged: (val) => setState(() => weight = val),
+            width: constraints.maxWidth,
+          );
+        },
+      ),
     );
   }
 }
